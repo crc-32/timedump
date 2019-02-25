@@ -29,19 +29,20 @@ def build(ctx):
     binaries = []
 
     cached_env = ctx.env
-    ctx.env = ctx.all_envs['basalt']
-    ctx.set_group(ctx.env.PLATFORM_NAME)
-    app_elf = '{}/pebble-app.elf'.format(ctx.env.BUILD_DIR)
-    ctx.pbl_build(source=ctx.path.ant_glob('src/c/**/*.c') + ctx.path.find_node('./').ant_glob('STM32F4XX/src/*.c'), includes=['STM32F4XX/inc'], target=app_elf, bin_type='app')
+    for platform in ctx.env.TARGET_PLATFORMS:
+        ctx.env = ctx.all_envs[platform]
+        ctx.set_group(ctx.env.PLATFORM_NAME)
+        app_elf = '{}/pebble-app.elf'.format(ctx.env.BUILD_DIR)
+        ctx.pbl_build(source=ctx.path.ant_glob('src/c/**/*.c'), target=app_elf, bin_type='app')
 
-    if build_worker:
-        worker_elf = '{}/pebble-worker.elf'.format(ctx.env.BUILD_DIR)
-        binaries.append({'platform': 'basalt', 'app_elf': app_elf, 'worker_elf': worker_elf})
-        ctx.pbl_build(source=ctx.path.ant_glob('worker_src/c/**/*.c'),
-                        target=worker_elf,
-                        bin_type='worker')
-    else:
-        binaries.append({'platform': 'basalt', 'app_elf': app_elf})
+        if build_worker:
+            worker_elf = '{}/pebble-worker.elf'.format(ctx.env.BUILD_DIR)
+            binaries.append({'platform': platform, 'app_elf': app_elf, 'worker_elf': worker_elf})
+            ctx.pbl_build(source=ctx.path.ant_glob('worker_src/c/**/*.c'),
+                          target=worker_elf,
+                          bin_type='worker')
+        else:
+            binaries.append({'platform': platform, 'app_elf': app_elf})
     ctx.env = cached_env
 
     ctx.set_group('bundle')
