@@ -22,7 +22,13 @@
       "dummy"
     ],
     "resources": {
-      "media": []
+      "media": [
+        {
+          "type": "raw",
+          "name": "SNOWY_BOOT_RBL",
+          "file": "snowy_boot.rbl.bin"
+        }
+      ]
     }
   }
 }
